@@ -1,6 +1,7 @@
 Site {
     .title = "The Hidden Cost of Bad Audio",
-    .host_url = "https://danielle-phatic.github.io/speech-quality-data",
+    .host_url = "https://danielle-phatic.github.io",
+    .url_path_prefix = "speech-quality-data",
     .content_dir_path = "content",
     .layouts_dir_path = "layouts",
     .assets_dir_path = "assets",
