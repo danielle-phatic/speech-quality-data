@@ -1,6 +1,6 @@
 Site {
     .title = "The Hidden Cost of Bad Audio",
-    .host_url = "https://example.com",
+    .host_url = "https://danielle-phatic.github.io",
     .content_dir_path = "content",
     .layouts_dir_path = "layouts",
     .assets_dir_path = "assets",
