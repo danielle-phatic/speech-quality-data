@@ -1,0 +1,313 @@
+/* ========================================
+   Transformers Boombox Design System
+   ======================================== */
+
+@layer reset, base, layout, components, utilities;
+
+/* ----------------------------------------
+   Design Tokens
+   ---------------------------------------- */
+:root {
+  /* Soundwave Faction (Default - Decepticon Purple) */
+  --faction-primary: rgb(147, 112, 219);
+  --faction-secondary: rgb(75, 0, 130);
+  --faction-accent: rgb(200, 180, 255);
+  --faction-glow: rgba(147, 112, 219, 0.6);
+
+  /* Blaster Faction (Alternate - Autobot Orange) */
+  --faction-primary-blaster: rgb(255, 140, 0);
+  --faction-secondary-blaster: rgb(178, 34, 34);
+  --faction-accent-blaster: rgb(255, 215, 0);
+  --faction-glow-blaster: rgba(255, 140, 0, 0.6);
+
+  /* Core Colors */
+  --clr-bg: #111;
+  --clr-bg-elevated: #1a1a1a;
+  --clr-bg-surface: #2a2a2a;
+  --clr-text: #ccc;
+  --clr-text-bright: #fff;
+  --clr-text-muted: #888;
+  --clr-heading: #ddd;
+  --clr-link: #eee;
+
+  /* Cassette Tokens */
+  --cassette-width: 110px;
+  --cassette-height: 70px;
+  --cassette-depth: 12px;
+  --cassette-color: #2a2a2a;
+  --label-color: #e8e8e8;
+
+  /* Deck Tokens */
+  --deck-width: 300px;
+  --deck-bg: linear-gradient(180deg, #3a3a3a 0%, #2a2a2a 50%, #1a1a1a 100%);
+
+  /* VU Meter Colors */
+  --vu-green: #00ff00;
+  --vu-yellow: #ffff00;
+  --vu-red: #ff0000;
+
+  /* Counter Display */
+  --counter-red: #ff3333;
+  --counter-glow: rgba(255, 50, 50, 0.5);
+
+  /* Typography */
+  --ff-body: "Georgia", serif;
+  --ff-heading: "Verdana", sans-serif;
+  --ff-mono: "Courier New", monospace;
+
+  /* Sizing */
+  --content-width: 800px;
+
+  /* Deck Hardware Tokens */
+  --deck-metal-light: #4a4a4a;
+  --deck-metal-mid: #3a3a3a;
+  --deck-metal-dark: #1a1a1a;
+  --deck-chrome-light: #aaa;
+  --deck-chrome-mid: #888;
+  --deck-chrome-dark: #666;
+
+  /* Cassette Materials */
+  --cassette-plastic-light: #3a3a3a;
+  --cassette-plastic-dark: #1a1a1a;
+  --cassette-shell-inset: rgba(0, 0, 0, 0.6);
+
+  /* Enhanced Counter */
+  --counter-bg: #050505;
+  --counter-segment-off: #1a0000;
+  --counter-segment-on: #ff3333;
+  --counter-glow-strong: rgba(255, 50, 50, 0.8);
+}
+
+/* Blaster Faction Override */
+[data-faction="blaster"] {
+  --faction-primary: var(--faction-primary-blaster);
+  --faction-secondary: var(--faction-secondary-blaster);
+  --faction-accent: var(--faction-accent-blaster);
+  --faction-glow: var(--faction-glow-blaster);
+}
+
+/* ----------------------------------------
+   CSS Reset
+   ---------------------------------------- */
+@layer reset {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    -moz-text-size-adjust: none;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+  }
+
+  body,
+  h1, h2, h3, h4, h5, h6,
+  p, figure, blockquote, dl, dd {
+    margin: 0;
+  }
+
+  body {
+    min-block-size: 100vh;
+    line-height: 1.6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    line-height: 1.1;
+    text-wrap: balance;
+  }
+
+  p, li {
+    text-wrap: pretty;
+  }
+
+  img, picture, svg {
+    max-inline-size: 100%;
+    display: block;
+  }
+
+  input, button, textarea, select {
+    font: inherit;
+  }
+
+  button {
+    cursor: pointer;
+  }
+}
+
+/* ----------------------------------------
+   Base Styles
+   ---------------------------------------- */
+@layer base {
+  html {
+    color: var(--clr-text);
+    font-family: var(--ff-body);
+    font-size: 1.2em;
+    background-color: var(--clr-bg);
+  }
+
+  body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    color: var(--clr-heading);
+    font-family: var(--ff-heading);
+  }
+
+  b, strong {
+    color: var(--clr-text-bright);
+  }
+
+  a {
+    color: var(--clr-link);
+  }
+
+  a:hover {
+    color: var(--faction-accent);
+  }
+
+  a:focus-visible {
+    outline: 2px solid var(--faction-primary);
+    outline-offset: 2px;
+  }
+}
+
+/* ----------------------------------------
+   Layout
+   ---------------------------------------- */
+@layer layout {
+  .content-viewport {
+    width: 100%;
+    max-width: var(--content-width);
+  }
+
+  .tape-content {
+    position: relative;
+    padding: 20px 0;
+  }
+
+  .tape-content[hidden] {
+    display: none;
+  }
+}
+
+/* ----------------------------------------
+   Components
+   ---------------------------------------- */
+@layer components {
+  /* Site Title */
+  .site-title {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+
+  /* Legacy block styling */
+  .block {
+    border: 1px dotted white;
+    padding: 5px 15px;
+    margin: 0 10px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+
+  .block h1 {
+    font-size: 1em;
+    text-align: center;
+    margin-bottom: 0;
+  }
+
+  /* Wave glow effect */
+  .wave {
+    background: var(--clr-bg);
+    color: var(--clr-text-bright);
+    text-shadow:
+      1px 1px 10px var(--clr-text-bright),
+      1px 1px 10px var(--clr-text);
+  }
+
+  /* Footer */
+  footer {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: var(--content-width);
+  }
+
+  footer hr {
+    width: 100%;
+    border: none;
+    border-top: 1px solid var(--clr-text-muted);
+    margin-bottom: 15px;
+  }
+
+  /* Faction Toggle */
+  .faction-toggle {
+    position: fixed;
+    top: 15px;
+    right: 15px;
+    z-index: 9998;
+    display: flex;
+    gap: 8px;
+  }
+
+  .faction-btn {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--clr-text-muted);
+    border-radius: 50%;
+    background: var(--clr-bg-elevated);
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    opacity: 0.6;
+  }
+
+  .faction-btn:hover {
+    opacity: 1;
+    border-color: var(--clr-text);
+  }
+
+  .faction-btn[aria-pressed="true"] {
+    opacity: 1;
+    border-color: var(--faction-primary);
+    box-shadow: 0 0 10px var(--faction-glow);
+  }
+
+  .faction-btn[data-faction="soundwave"] .faction-icon::before {
+    content: "🔊";
+  }
+
+  .faction-btn[data-faction="blaster"] .faction-icon::before {
+    content: "📻";
+  }
+
+  /* Hidden utility */
+  .hidden {
+    display: none !important;
+  }
+}
+
+/* ----------------------------------------
+   Utilities
+   ---------------------------------------- */
+@layer utilities {
+  .small {
+    font-size: 0.8em;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+}

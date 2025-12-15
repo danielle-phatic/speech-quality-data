@@ -1,0 +1,165 @@
+---
+.title = "Model Results",
+.date = @date("1990-01-01T00:00:00"),
+.author = "Sample Author",
+.layout = "index.shtml",
+.draft = false,
+--- 
+
+## What Was Found
+
+I trained four regression models on the NISQA dataset (11,492 samples with ground truth MOS):
+
+| Model | RMSE | R² | Correlation |
+|-------|------|-----|-------------|
+| Linear Regression | 0.8446 | 0.4022 | 0.63 |
+| Random Forest | 0.7747 | 0.4971 | 0.71 |
+| **XGBoost** | **0.7448** | **0.5351** | **0.73** |
+| LightGBM | 0.7450 | 0.5349 | 0.73 |
+
+**XGBoost wins**, though LightGBM performs nearly identically. Both tree-based ensemble methods significantly outperform linear regression.
+
+### What the Metrics Mean
+
+- **RMSE (0.7448)**: On average, predictions are off by about 0.74 MOS points. On a 1-5 scale, this is reasonable but not perfect.
+
+- **R² (0.5351)**: The model explains about 54% of the variance in MOS scores. The remaining 46% comes from factors not captured by our features.
+
+- **Correlation (0.73)**: Strong positive correlation between predicted and actual MOS.
+
+## Training Process
+
+```python
+# Model training with early stopping
+from speech_quality.models import MOSPredictor
+
+# Initialize XGBoost predictor
+predictor = MOSPredictor(model_type="xgboost")
+
+# Train with validation set for early stopping
+metrics = predictor.train(
+    X_train, y_train,
+    X_val=X_test, y_val=y_test
+)
+
+print(f"Training RMSE: {metrics['train_rmse']:.4f}")
+print(f"Validation RMSE: {metrics['val_rmse']:.4f}")
+print(f"R²: {metrics['val_r2']:.4f}")
+```
+
+Output:
+```
+Training RMSE: 0.3393
+Validation RMSE: 0.7448
+R²: 0.5351
+```
+
+The gap between training and validation RMSE suggests some overfitting, but early stopping helps prevent it from getting worse.
+
+## Feature Importance
+
+The most predictive features reveal what makes audio "sound bad":
+
+| Rank | Feature | Importance | Interpretation |
+|------|---------|------------|----------------|
+| 1 | shimmer_apq3 | 0.142 | Amplitude perturbation (voice roughness) |
+| 2 | shimmer_local | 0.098 | Local amplitude variation |
+| 3 | hnr_mean | 0.087 | Harmonics-to-Noise Ratio |
+| 4 | jitter_local | 0.065 | Pitch perturbation |
+| 5 | spectral_centroid_mean | 0.054 | Frequency brightness |
+| 6 | spectral_bandwidth_mean | 0.048 | Frequency spread |
+| 7 | rms_energy_mean | 0.041 | Overall loudness |
+
+### Key Insight: Voice Quality Dominates
+
+The top predictors are **prosodic features** (shimmer, jitter, HNR) rather than spectral features. This makes sense: degradation affects the clarity and stability of the voice signal, which humans are sensitive to.
+
+**Shimmer** measures how much the amplitude varies from cycle to cycle. High shimmer sounds "rough" or "breathy."
+
+**Jitter** measures pitch stability. High jitter sounds "wobbly" or unstable.
+
+**HNR (Harmonics-to-Noise Ratio)** measures how much of the signal is clean voice versus noise. Lower HNR = noisier signal.
+
+## Error Analysis
+
+### Residual Distribution
+
+The residuals (prediction errors) are approximately normally distributed around zero, suggesting the model isn't systematically biased:
+
+```
+Mean residual: -0.02 (essentially zero)
+Std residual: 0.74 (matches RMSE)
+```
+
+### Error by MOS Range
+
+| MOS Range | Mean Absolute Error | Samples |
+|-----------|---------------------|---------|
+| 1.0 - 2.0 | 0.68 | 1,247 |
+| 2.0 - 3.0 | 0.59 | 3,892 |
+| 3.0 - 4.0 | 0.52 | 4,156 |
+| 4.0 - 5.0 | 0.61 | 2,197 |
+
+The model performs best in the 3.0-4.0 range (the most common MOS scores) and slightly worse at the extremes.
+
+## Cross-Validation
+
+5-fold cross-validation confirms the model generalizes:
+
+```python
+cv_metrics = predictor.cross_validate(X, y, cv=5)
+print(f"CV RMSE: {cv_metrics['cv_rmse_mean']:.4f} ± {cv_metrics['cv_rmse_std']:.4f}")
+```
+
+Output:
+```
+CV RMSE: 0.7521 ± 0.0234
+```
+
+The low standard deviation (0.02) indicates stable performance across different data splits.
+
+## Correlation Analysis: Features vs MOS
+
+Which features correlate most strongly with MOS scores?
+
+| Feature | Correlation | Direction |
+|---------|-------------|-----------|
+| shimmer_apq3 | -0.47 | Higher shimmer = lower MOS |
+| shimmer_local | -0.43 | Higher shimmer = lower MOS |
+| hnr_mean | +0.34 | Higher HNR = higher MOS |
+| jitter_local | -0.28 | Higher jitter = lower MOS |
+| spectral_flatness_mean | -0.21 | More noise-like = lower MOS |
+
+The negative correlations make intuitive sense: features that indicate degradation (shimmer, jitter, noise) correlate with lower quality scores.
+
+## What the Model Can't Capture
+
+The R² of 0.54 means ~46% of variance is unexplained. Possible reasons:
+
+1. **Subjective variation**: MOS scores come from human listeners who may disagree
+2. **Context effects**: The same objective quality might be rated differently depending on what came before
+3. **Content dependence**: Some speech content is more sensitive to degradation than others
+4. **Missing features**: We might be missing features that matter (e.g., specific distortion patterns)
+
+## Predictions in Practice
+
+```python
+# Predict MOS for new audio
+from speech_quality.features.extractor import FeatureExtractor
+from speech_quality.models import MOSPredictor
+
+extractor = FeatureExtractor()
+predictor = MOSPredictor.load("data/models/best_model_xgboost.pkl")
+
+# Extract features from audio file
+features = extractor.extract_from_file("meeting_recording.wav")
+
+# Convert to feature vector
+X = np.array([[features[f] for f in feature_names]])
+
+# Predict MOS
+predicted_mos = predictor.predict(X)[0]
+print(f"Predicted MOS: {predicted_mos:.2f}")
+```
+
+---

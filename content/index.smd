@@ -1,0 +1,55 @@
+---
+.title = "Project Overview",
+.date = @date("1990-01-01T00:00:00"),
+.author = "Sample Author",
+.layout = "index.shtml",
+.draft = false,
+--- 
+
+## Speech Quality Analysis
+
+**Predicting audio degradation's impact on communication and organizational cost**
+
+---
+
+## The Problem
+
+In virtual workplaces, poor audio quality doesn't just cause frustration—it costs money. When call quality degrades, people mishear each other, ask for repetitions, and lose focus. This project quantifies that impact by predicting Mean Opinion Score (MOS) from audio features and translating those predictions into business metrics.
+
+## Research Questions
+
+1. **How much do speech quality indicators decline when audio is degraded?**
+2. **Can we predict reduced perceived competence from acoustic features?**
+3. **What's the ROI of improving microphone or network quality?**
+
+## Key Findings
+
+| Metric | Result |
+|--------|--------|
+| Best Model | XGBoost |
+| Test RMSE | 0.7448 |
+| Test R² | 0.5351 |
+| Top Predictor | shimmer_apq3 (voice quality) |
+| Dataset Size | 11,492 samples with ground truth MOS |
+
+**Business Impact**: Improving audio from MOS 3.0 → 4.0 can save hundreds of dollars per employee annually in reduced meeting inefficiency and fewer miscommunications.
+
+## Tech Stack
+
+- **Audio Processing**: librosa, Parselmouth (Praat), pydub, soundfile
+- **ML Models**: scikit-learn, XGBoost, LightGBM
+- **Data Storage**: DuckDB for efficient feature storage and retrieval
+- **Configuration**: Pydantic + YAML for type-safe, version-controlled settings
+
+## Pipeline Overview
+
+```
+Raw Audio → Cleaning → Degradation → Feature Extraction → MOS Prediction → Business Metrics
+     ↓           ↓           ↓              ↓                  ↓               ↓
+  LJSpeech    16kHz      Codec/Noise    60+ features       XGBoost        Annual cost
+  NISQA       normalize   Bandwidth      Acoustic          R² = 0.54      per employee
+              trim        Network        Prosodic
+                                        Perceptual
+```
+
+---

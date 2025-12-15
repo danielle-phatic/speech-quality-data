@@ -1,0 +1,145 @@
+<extend template="base.shtml">
+
+<head id="head">
+	<title>404 - Page Not Found</title>
+	<style>
+		.page-404 {
+			min-height: 60vh;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			position: relative;
+		}
+
+		.hunt-instructions {
+			z-index: 100;
+		}
+
+		.hunt-instructions h1 {
+			font-size: 2.5em;
+			margin-bottom: 20px;
+			color: var(--faction-primary);
+		}
+
+		.hunt-instructions p {
+			font-size: 1.2em;
+			margin-bottom: 10px;
+		}
+
+		.catch-counter {
+			font-family: var(--ff-mono);
+			font-size: 1.4em;
+			color: var(--counter-red);
+			text-shadow: 0 0 10px var(--counter-glow);
+			margin-top: 20px;
+		}
+
+		.error-content {
+			margin-top: 30px;
+		}
+
+		.error-content a {
+			display: inline-block;
+			padding: 10px 20px;
+			background: var(--clr-bg-surface);
+			border: 2px solid var(--faction-primary);
+			border-radius: 4px;
+			color: var(--faction-accent);
+			text-decoration: none;
+			transition: all 0.2s ease;
+		}
+
+		.error-content a:hover {
+			background: var(--faction-primary);
+			color: var(--clr-bg);
+			box-shadow: 0 0 20px var(--faction-glow);
+		}
+
+		/* Ratbat specific positioning for 404 */
+		#ratbat {
+			width: 60px;
+			position: fixed;
+			z-index: 9001;
+		}
+	</style>
+</head>
+
+<main id="content">
+	<div class="page-404">
+		<div class="hunt-instructions">
+			<h1 class="chromatic-text" data-text="404: Content Stolen!">404: Content Stolen!</h1>
+			<p>Ratbat has taken this page.</p>
+			<p>Catch him <strong>3 times</strong> to continue!</p>
+			<p class="catch-counter">3 catches to go!</p>
+		</div>
+
+		<!-- Ratbat SVG for the hunt game -->
+		<svg id="ratbat" class="minion" viewBox="0 0 60 40" aria-hidden="true">
+			<defs>
+				<linearGradient id="ratbat-metal" x1="0%" y1="0%" x2="0%" y2="100%">
+					<stop offset="0%" style="stop-color:#5a5a6a"/>
+					<stop offset="50%" style="stop-color:#3a3a4a"/>
+					<stop offset="100%" style="stop-color:#2a2a3a"/>
+				</linearGradient>
+				<linearGradient id="ratbat-membrane" x1="0%" y1="0%" x2="0%" y2="100%">
+					<stop offset="0%" style="stop-color:#4a4a5a;stop-opacity:0.9"/>
+					<stop offset="100%" style="stop-color:#2a2a3a;stop-opacity:0.7"/>
+				</linearGradient>
+				<radialGradient id="ratbat-eye-glow">
+					<stop offset="0%" style="stop-color:#ff0000"/>
+					<stop offset="100%" style="stop-color:#aa0000"/>
+				</radialGradient>
+				<linearGradient id="ratbat-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+					<stop offset="0%" style="stop-color:#9370db"/>
+					<stop offset="100%" style="stop-color:#6a0dad"/>
+				</linearGradient>
+			</defs>
+			<g class="wing wing-left">
+				<path d="M25,18 L8,5 L3,8 L2,15 L5,22 L15,28 L25,25 Z" fill="url(#ratbat-membrane)" stroke="#4a4a5a" stroke-width="0.5"/>
+				<path d="M25,18 L8,8" stroke="#5a5a6a" stroke-width="1" fill="none"/>
+				<path d="M25,20 L5,15" stroke="#5a5a6a" stroke-width="1" fill="none"/>
+				<path d="M25,23 L10,25" stroke="#5a5a6a" stroke-width="1" fill="none"/>
+				<circle cx="8" cy="6" r="1.5" fill="#3a3a4a"/>
+			</g>
+			<g class="wing wing-right">
+				<path d="M35,18 L52,5 L57,8 L58,15 L55,22 L45,28 L35,25 Z" fill="url(#ratbat-membrane)" stroke="#4a4a5a" stroke-width="0.5"/>
+				<path d="M35,18 L52,8" stroke="#5a5a6a" stroke-width="1" fill="none"/>
+				<path d="M35,20 L55,15" stroke="#5a5a6a" stroke-width="1" fill="none"/>
+				<path d="M35,23 L50,25" stroke="#5a5a6a" stroke-width="1" fill="none"/>
+				<circle cx="52" cy="6" r="1.5" fill="#3a3a4a"/>
+			</g>
+			<g class="body">
+				<ellipse cx="30" cy="22" rx="8" ry="6" fill="url(#ratbat-metal)" stroke="#4a4a5a" stroke-width="0.5"/>
+				<path d="M26,20 L30,17 L34,20 L34,25 L30,27 L26,25 Z" fill="url(#ratbat-accent)" opacity="0.8"/>
+				<circle cx="30" cy="22" r="2" fill="#222"/>
+				<circle cx="30" cy="22" r="1" fill="#9370db" opacity="0.8"/>
+			</g>
+			<g class="head">
+				<path d="M25,14 Q30,8 35,14 L35,18 Q30,20 25,18 Z" fill="url(#ratbat-metal)" stroke="#4a4a5a" stroke-width="0.5"/>
+				<path d="M26,12 L22,4 L28,10 Z" fill="#4a4a5a" stroke="#5a5a6a" stroke-width="0.3"/>
+				<path d="M34,12 L38,4 L32,10 Z" fill="#4a4a5a" stroke="#5a5a6a" stroke-width="0.3"/>
+				<path d="M28,16 L30,20 L32,16 Z" fill="#3a3a4a"/>
+				<ellipse cx="30" cy="17" rx="1" ry="0.5" fill="#222"/>
+				<g class="eye eye-left" transform="translate(27, 14)">
+					<circle class="eye-socket" cx="0" cy="0" r="2.5" fill="#111"/>
+					<circle class="pupil" cx="0" cy="0" r="1.5" fill="url(#ratbat-eye-glow)"/>
+				</g>
+				<g class="eye eye-right" transform="translate(33, 14)">
+					<circle class="eye-socket" cx="0" cy="0" r="2.5" fill="#111"/>
+					<circle class="pupil" cx="0" cy="0" r="1.5" fill="url(#ratbat-eye-glow)"/>
+				</g>
+			</g>
+			<g class="legs">
+				<path d="M27,27 L25,34 L23,34 L24,36 L26,36 L28,34 L29,28" fill="none" stroke="#4a4a5a" stroke-width="1.5" stroke-linecap="round"/>
+				<path d="M33,27 L35,34 L37,34 L36,36 L34,36 L32,34 L31,28" fill="none" stroke="#4a4a5a" stroke-width="1.5" stroke-linecap="round"/>
+			</g>
+		</svg>
+
+		<div class="error-content hidden">
+			<p>The page you're looking for doesn't exist.</p>
+			<a href="$site.link()" class="glow-element">Return Home</a>
+		</div>
+	</div>
+</main>

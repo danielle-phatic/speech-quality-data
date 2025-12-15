@@ -1,0 +1,97 @@
+<svg id="ravage" viewBox="0 0 120 60" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+  <defs>
+    <!-- Metallic gradient for body -->
+    <linearGradient id="ravage-metal" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#4a4a5a"/>
+      <stop offset="50%" style="stop-color:#2a2a3a"/>
+      <stop offset="100%" style="stop-color:#1a1a2a"/>
+    </linearGradient>
+    <!-- Eye glow -->
+    <radialGradient id="ravage-eye-glow">
+      <stop offset="0%" style="stop-color:#ff3333"/>
+      <stop offset="100%" style="stop-color:#990000"/>
+    </radialGradient>
+    <!-- Accent color -->
+    <linearGradient id="ravage-accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#9370db"/>
+      <stop offset="100%" style="stop-color:#6a0dad"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Body -->
+  <g class="body">
+    <!-- Main torso -->
+    <path d="M30,32 Q40,25 60,25 Q80,25 90,32 L88,38 Q60,42 32,38 Z"
+          fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <!-- Chest plate -->
+    <path d="M45,30 L55,28 L65,28 L75,30 L70,35 L50,35 Z"
+          fill="url(#ravage-accent)" opacity="0.8"/>
+    <!-- Tech details -->
+    <rect x="55" y="30" width="10" height="3" rx="1" fill="#222"/>
+    <circle cx="60" cy="31.5" r="1" fill="#ff3333" opacity="0.8"/>
+  </g>
+
+  <!-- Head -->
+  <g class="head">
+    <!-- Skull -->
+    <path d="M20,28 Q15,25 15,22 Q15,16 25,15 Q35,14 38,20 L38,28 Q30,32 20,28 Z"
+          fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <!-- Snout -->
+    <path d="M15,22 L8,20 L8,24 L15,25 Z" fill="#2a2a3a"/>
+    <!-- Ears -->
+    <path d="M22,15 L18,8 L24,12 Z" fill="#3a3a4a"/>
+    <path d="M32,14 L30,6 L36,11 Z" fill="#3a3a4a"/>
+    <!-- Jaw detail -->
+    <path d="M10,22 L15,24 L12,26 L8,24 Z" fill="#1a1a2a"/>
+
+    <!-- Left Eye -->
+    <g class="eye eye-left" transform="translate(22, 20)">
+      <circle class="eye-socket" cx="0" cy="0" r="4" fill="#111"/>
+      <circle class="pupil" cx="0" cy="0" r="2.5" fill="url(#ravage-eye-glow)">
+        <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite"/>
+      </circle>
+    </g>
+
+    <!-- Right Eye -->
+    <g class="eye eye-right" transform="translate(32, 19)">
+      <circle class="eye-socket" cx="0" cy="0" r="4" fill="#111"/>
+      <circle class="pupil" cx="0" cy="0" r="2.5" fill="url(#ravage-eye-glow)">
+        <animate attributeName="opacity" values="1;0.7;1" dur="2s" repeatCount="indefinite" begin="0.3s"/>
+      </circle>
+    </g>
+  </g>
+
+  <!-- Front Left Leg -->
+  <g class="leg leg-front-left">
+    <path d="M40,38 L38,50 L42,52 L44,40 Z" fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <rect x="37" y="50" width="6" height="4" rx="1" fill="#2a2a3a"/>
+  </g>
+
+  <!-- Front Right Leg -->
+  <g class="leg leg-front-right">
+    <path d="M50,38 L48,50 L52,52 L54,40 Z" fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <rect x="47" y="50" width="6" height="4" rx="1" fill="#2a2a3a"/>
+  </g>
+
+  <!-- Back Left Leg -->
+  <g class="leg leg-back-left">
+    <path d="M70,38 L68,48 L65,52 L62,50 L66,40 Z" fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <rect x="63" y="50" width="5" height="4" rx="1" fill="#2a2a3a"/>
+  </g>
+
+  <!-- Back Right Leg -->
+  <g class="leg leg-back-right">
+    <path d="M80,38 L78,48 L75,52 L72,50 L76,40 Z" fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <rect x="73" y="50" width="5" height="4" rx="1" fill="#2a2a3a"/>
+  </g>
+
+  <!-- Tail -->
+  <g class="tail">
+    <path d="M90,32 Q100,30 108,25 Q115,22 118,25 Q116,28 110,30 Q100,35 92,35 Z"
+          fill="url(#ravage-metal)" stroke="#3a3a4a" stroke-width="0.5"/>
+    <!-- Tail segments -->
+    <line x1="95" y1="32" x2="95" y2="34" stroke="#9370db" stroke-width="1" opacity="0.6"/>
+    <line x1="102" y1="29" x2="102" y2="32" stroke="#9370db" stroke-width="1" opacity="0.6"/>
+    <line x1="110" y1="27" x2="110" y2="29" stroke="#9370db" stroke-width="1" opacity="0.6"/>
+  </g>
+</svg>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html data-faction="soundwave">
+	<head id="head">
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title :text="$site.title"></title>
+
+		<!-- Stylesheets -->
+		<link type="text/css" rel="stylesheet" href="$site.asset('style.css').link()">
+		<link type="text/css" rel="stylesheet" href="$site.asset('crt-overlay.css').link()">
+		<link type="text/css" rel="stylesheet" href="$site.asset('cassette.css').link()">
+		<link type="text/css" rel="stylesheet" href="$site.asset('minions.css').link()">
+		<link type="text/css" rel="stylesheet" href="$site.asset('highlight.css').link()">
+
+		<!-- Math rendering -->
+		<link type="text/css" rel="stylesheet" href="$site.asset('Temml-Local.css').link()">
+		<script defer src="$site.asset('temml.min.js').link()"></script>
+		<script defer src="$site.asset('render-mathtex.js').link()"></script>
+
+		<!-- Transformers Boombox -->
+		<script defer src="$site.asset('transformers.js').link()"></script>
+		<super>
+	</head>
+	<body id="body">
+		<!-- CRT Overlay Effects -->
+		<div class="crt-overlay">
+			<div class="scanlines"></div>
+			<div class="vignette"></div>
+			<div class="flicker-layer"></div>
+			<canvas class="noise-canvas"></canvas>
+		</div>
+
+		<!-- Faction Toggle -->
+		<div class="faction-toggle">
+			<button class="faction-btn" data-faction="soundwave" aria-pressed="true" aria-label="Soundwave faction (purple)">
+				<span class="faction-icon" aria-hidden="true"></span>
+			</button>
+			<button class="faction-btn" data-faction="blaster" aria-pressed="false" aria-label="Blaster faction (orange)">
+				<span class="faction-icon" aria-hidden="true"></span>
+			</button>
+		</div>
+
+		<!-- Site Title with Chromatic Effect -->
+		<h1 class="site-title chromatic-text glow-text"
+			data-text="The Hidden Cost of Bad Audio"
+			:text="$site.title"></h1>
+
+		<!-- Cassette Deck Navigation -->
+		<nav class="tape-navigation" aria-label="Main navigation">
+			<div class="tape-rack">
+				<!-- Home Cassette -->
+				<a class="cassette" href="$site.page('').link()" data-section="home">
+					<div class="cassette-body">
+						<div class="label-area">
+							<span class="label-text">Overview</span>
+						</div>
+						<div class="tape-window">
+							<div class="reel reel-left"></div>
+							<div class="reel reel-right"></div>
+						</div>
+						<div class="screw screw-tl"></div>
+						<div class="screw screw-tr"></div>
+						<div class="screw screw-bl"></div>
+						<div class="screw screw-br"></div>
+					</div>
+				</a>
+
+				<!-- About Cassette -->
+				<a class="cassette" href="$site.page('about').link()" data-section="about">
+					<div class="cassette-body">
+						<div class="label-area">
+							<span class="label-text">Motivation</span>
+						</div>
+						<div class="tape-window">
+							<div class="reel reel-left"></div>
+							<div class="reel reel-right"></div>
+						</div>
+						<div class="screw screw-tl"></div>
+						<div class="screw screw-tr"></div>
+						<div class="screw screw-bl"></div>
+						<div class="screw screw-br"></div>
+					</div>
+				</a>
+
+				<!-- Blog Cassette -->
+				<a class="cassette" href="$site.page('blog').link()" data-section="blog">
+					<div class="cassette-body">
+						<div class="label-area">
+							<span class="label-text">Data</span>
+						</div>
+						<div class="tape-window">
+							<div class="reel reel-left"></div>
+							<div class="reel reel-right"></div>
+						</div>
+						<div class="screw screw-tl"></div>
+						<div class="screw screw-tr"></div>
+						<div class="screw screw-bl"></div>
+						<div class="screw screw-br"></div>
+					</div>
+				</a>
+
+				<!-- Devlog Cassette (conditional) -->
+				<a class="cassette" href="$site.page('technical').link()" data-section="technical">
+					<div class="cassette-body">
+						<div class="label-area">
+							<span class="label-text">Technical</span>
+						</div>
+						<div class="tape-window">
+							<div class="reel reel-left"></div>
+							<div class="reel reel-right"></div>
+						</div>
+						<div class="screw screw-tl"></div>
+						<div class="screw screw-tr"></div>
+						<div class="screw screw-bl"></div>
+						<div class="screw screw-br"></div>
+					</div>
+				</a>
+
+				<!-- Devlog Cassette (conditional) -->
+				<a class="cassette" href="$site.page('models').link()" data-section="models">
+					<div class="cassette-body">
+						<div class="label-area">
+							<span class="label-text">Models</span>
+						</div>
+						<div class="tape-window">
+							<div class="reel reel-left"></div>
+							<div class="reel reel-right"></div>
+						</div>
+						<div class="screw screw-tl"></div>
+						<div class="screw screw-tr"></div>
+						<div class="screw screw-bl"></div>
+						<div class="screw screw-br"></div>
+					</div>
+				</a>
+
+				<!-- Devlog Cassette (conditional) -->
+				<a class="cassette" href="$site.page('impact').link()" data-section="impact">
+					<div class="cassette-body">
+						<div class="label-area">
+							<span class="label-text">Impact</span>
+						</div>
+						<div class="tape-window">
+							<div class="reel reel-left"></div>
+							<div class="reel reel-right"></div>
+						</div>
+						<div class="screw screw-tl"></div>
+						<div class="screw screw-tr"></div>
+						<div class="screw screw-bl"></div>
+						<div class="screw screw-br"></div>
+					</div>
+				</a>
+
+			</div>
+
+			<!-- Tape Deck -->
+			<div class="tape-deck">
+				<div class="deck-housing">
+					<div class="deck-slot">
+						<div class="slot-opening"></div>
+						<div class="deck-mechanism">
+							<div class="play-head"></div>
+							<div class="capstan"></div>
+							<div class="pinch-roller"></div>
+						</div>
+					</div>
+
+					<div class="deck-controls">
+						<button class="deck-btn eject-btn" aria-label="Eject tape">
+							<span class="btn-icon" aria-hidden="true">⏏</span>
+						</button>
+					</div>
+
+					<div class="deck-display">
+						<div class="counter">
+							<span class="digit" data-value="0">0</span>
+							<span class="digit" data-value="0">0</span>
+							<span class="digit" data-value="0">0</span>
+						</div>
+						<div class="vu-meters">
+							<div class="vu-meter vu-left"></div>
+							<div class="vu-meter vu-right"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</nav>
+
+		<!-- Main Content Viewport -->
+		<main id="content" class="content-viewport">
+			<super>
+		</main>
+	</body>
+</html>

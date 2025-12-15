@@ -1,0 +1,286 @@
+/* ========================================
+   CRT Overlay Effects
+   Retro-tech texture layer for analog screen feel
+   ======================================== */
+
+/* ----------------------------------------
+   CRT Overlay Container
+   ---------------------------------------- */
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.crt-overlay > * {
+  position: absolute;
+  inset: 0;
+}
+
+/* ----------------------------------------
+   Scanlines
+   Horizontal bands simulating CRT phosphor rows
+   ---------------------------------------- */
+.scanlines {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0, 0, 0, 0.15) 2px,
+    rgba(0, 0, 0, 0.15) 4px
+  );
+  background-position: 0 var(--scanline-offset, 0);
+}
+
+/* Trigger roll animation on state changes */
+.scanlines.rolling {
+  animation: scanline-roll 150ms linear;
+}
+
+@keyframes scanline-roll {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 0 100px;
+  }
+}
+
+/* ----------------------------------------
+   Vignette
+   Darkened edges simulating CRT screen curvature
+   ---------------------------------------- */
+.vignette {
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+}
+
+/* ----------------------------------------
+   Screen Flicker
+   Subtle randomized opacity dips for CRT feel
+   ---------------------------------------- */
+.flicker-layer {
+  background: rgba(255, 255, 255, 0.03);
+  animation: flicker 8s infinite;
+}
+
+@keyframes flicker {
+  0%, 91%, 95%, 100% {
+    opacity: 0;
+  }
+  92% {
+    opacity: 0.08;
+  }
+  93% {
+    opacity: 0.02;
+  }
+  94% {
+    opacity: 0.06;
+  }
+}
+
+/* ----------------------------------------
+   Noise Canvas
+   JS-controlled analog static bursts
+   ---------------------------------------- */
+.noise-canvas {
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  opacity: 0;
+  transition: opacity 0.1s ease-out;
+}
+
+.noise-canvas.active {
+  opacity: 1;
+}
+
+/* ----------------------------------------
+   RGB Chromatic Aberration
+   Color shift effect for headings and interactive text
+   ---------------------------------------- */
+.chromatic-text {
+  position: relative;
+  display: inline-block;
+}
+
+.chromatic-text::before,
+.chromatic-text::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.1s, transform 0.1s;
+  pointer-events: none;
+  z-index: -1;
+}
+
+.chromatic-text::before {
+  color: #ff0000;
+  mix-blend-mode: screen;
+}
+
+.chromatic-text::after {
+  color: #00ffff;
+  mix-blend-mode: screen;
+}
+
+.chromatic-text:hover::before,
+.chromatic-text:focus::before {
+  opacity: 0.8;
+  transform: translate(-2px, 0);
+}
+
+.chromatic-text:hover::after,
+.chromatic-text:focus::after {
+  opacity: 0.8;
+  transform: translate(2px, 0);
+}
+
+/* Stronger aberration variant */
+.chromatic-text--strong:hover::before,
+.chromatic-text--strong:focus::before {
+  opacity: 1;
+  transform: translate(-3px, -1px);
+}
+
+.chromatic-text--strong:hover::after,
+.chromatic-text--strong:focus::after {
+  opacity: 1;
+  transform: translate(3px, 1px);
+}
+
+/* ----------------------------------------
+   Phosphor Glow
+   For interactive elements - uses faction colors
+   ---------------------------------------- */
+.glow-element {
+  box-shadow:
+    0 0 2px var(--faction-primary),
+    0 0 8px color-mix(in srgb, var(--faction-primary) 70%, transparent),
+    0 0 20px color-mix(in srgb, var(--faction-primary) 40%, transparent),
+    0 0 40px color-mix(in srgb, var(--faction-primary) 20%, transparent);
+}
+
+/* Pulsing glow for active states */
+.glow-element.active,
+.glow-element--pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.2);
+  }
+}
+
+/* Text glow variant */
+.glow-text {
+  text-shadow:
+    0 0 2px var(--faction-primary),
+    0 0 8px var(--faction-glow),
+    0 0 20px var(--faction-glow);
+}
+
+/* ----------------------------------------
+   Barrel Distortion (Optional)
+   SVG filter for subtle screen curvature
+   Apply with: filter: url(#barrel-distort);
+   ---------------------------------------- */
+
+/* Placeholder - actual filter is in HTML as inline SVG */
+
+/* ----------------------------------------
+   Animation Pausing
+   Pause animations when tab is hidden
+   ---------------------------------------- */
+.animations-paused .scanlines,
+.animations-paused .flicker-layer,
+.animations-paused .glow-element.active,
+.animations-paused .glow-element--pulse {
+  animation-play-state: paused;
+}
+
+/* ----------------------------------------
+   Reduced Motion
+   Respect user preference for reduced motion
+   ---------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .scanlines,
+  .flicker-layer {
+    animation: none;
+  }
+
+  .scanlines.rolling {
+    animation: none;
+  }
+
+  .glow-element.active,
+  .glow-element--pulse {
+    animation: none;
+  }
+
+  .chromatic-text::before,
+  .chromatic-text::after {
+    display: none;
+  }
+
+  .noise-canvas {
+    display: none;
+  }
+}
+
+/* ----------------------------------------
+   CRT Power States
+   Visual feedback for on/off transitions
+   ---------------------------------------- */
+.crt-overlay.power-on {
+  animation: crt-power-on 0.5s ease-out;
+}
+
+@keyframes crt-power-on {
+  0% {
+    filter: brightness(3) contrast(0);
+    transform: scaleY(0.01);
+  }
+  50% {
+    filter: brightness(2) contrast(0.5);
+    transform: scaleY(1);
+  }
+  100% {
+    filter: brightness(1) contrast(1);
+    transform: scaleY(1);
+  }
+}
+
+.crt-overlay.power-off {
+  animation: crt-power-off 0.3s ease-in forwards;
+}
+
+@keyframes crt-power-off {
+  0% {
+    filter: brightness(1);
+    transform: scaleY(1);
+  }
+  50% {
+    filter: brightness(2);
+    transform: scaleY(0.02);
+  }
+  100% {
+    filter: brightness(0);
+    transform: scaleY(0);
+  }
+}

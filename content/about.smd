@@ -1,0 +1,76 @@
+---
+.title = "Motivation",
+.date = @date("1990-01-01T00:00:00"),
+.author = "Sample Author",
+.layout = "index.shtml",
+.draft = false,
+--- 
+
+## Why Audio Quality Matters
+
+Remote work is here to stay. But not everyone has the same setup. Some people work from quiet home offices with studio-quality microphones. Others dial in from noisy cafes on laptop speakers. This disparity creates a communication equity problem: people with poor audio quality may be perceived as less competent, even when they're not.
+
+This project started with a simple question: **Can we quantify the business impact of audio quality?**
+
+## Understanding MOS (Mean Opinion Score)
+
+The telecommunications industry has a standard metric for speech quality: the Mean Opinion Score (MOS), defined by ITU-T Recommendation P.800. It's a 1-5 scale based on human listening tests:
+
+| MOS | Quality | What It Means |
+|-----|---------|---------------|
+| 5.0 | Excellent | Imperceptible degradation—sounds perfect |
+| 4.0 | Good | Perceptible but not annoying |
+| 3.0 | Fair | Slightly annoying—requires more focus |
+| 2.0 | Poor | Annoying—hard to follow |
+| 1.0 | Bad | Very annoying—communication breaks down |
+
+Most VoIP calls land somewhere between 3.0 and 4.5. The difference between a 3.0 and a 4.0 might seem small, but it represents a meaningful shift in communication clarity.
+
+## Research Questions
+
+This project explores three interconnected questions:
+
+### 1. How do speech quality indicators change with degradation?
+
+When audio is compressed, bandwidth-limited, or corrupted by noise, how do measurable features like vocal shimmer, harmonic-to-noise ratio, and spectral characteristics change? Understanding these relationships is the foundation for prediction.
+
+### 2. Can acoustic features predict perceived quality?
+
+Given a set of audio features extracted from a sample, can we predict what MOS score a human listener would assign? This is the core machine learning challenge.
+
+### 3. What's the ROI of improving audio quality?
+
+If an organization can improve average call quality from MOS 3.0 to 4.0, what's the dollar value of that improvement? This translates technical metrics into business decisions.
+
+## Why This Matters
+
+### Communication Equity
+
+Poor audio quality disproportionately affects:
+- Remote workers in shared living spaces
+- Employees without budget for quality equipment
+- International participants dealing with bandwidth constraints
+- People whose first language differs from the meeting's primary language
+
+When someone's audio is choppy or noisy, listeners may unconsciously attribute the difficulty to the speaker rather than the technology.
+
+### The Remote Work Reality
+
+According to research cited by Microsoft's Work Trend Index, poor audio quality in meetings leads to:
+- Increased cognitive load (you work harder to understand)
+- More frequent misunderstandings
+- Reduced engagement and participation
+- Meeting fatigue accumulating faster
+
+These effects compound. A single bad-audio meeting might be forgettable, but experiencing them daily affects productivity and wellbeing.
+
+### Quantifiable Business Impact
+
+This project connects technical quality metrics to business outcomes:
+- **Meeting effectiveness**: What percentage of meeting time is productive?
+- **Misunderstanding probability**: How often do people mishear or miscommunicate?
+- **Annual cost per employee**: What's the dollar value of lost productivity?
+
+By making these connections explicit, organizations can make informed decisions about investing in audio quality improvements.
+
+---

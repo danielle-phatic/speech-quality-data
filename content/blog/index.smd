@@ -1,0 +1,157 @@
+---
+.title = "Data Sourcing",
+.date = @date("1990-01-01T00:00:00"),
+.author = "Sample Author",
+.layout = "blog.shtml",
+.draft = false,
+--- 
+
+## Sourcing Audio Quality Datasets
+
+To train a model that predicts MOS scores, I needed two things:
+1. **Clean reference audio** — high-quality speech samples to degrade
+2. **Ground truth MOS scores** — human-rated quality labels for training
+
+Finding these datasets turned out to be the biggest roadblock of the project. Unlike image or text datasets, audio quality data is sparse, poorly documented, and often requires manual acquisition.
+
+## The Three Datasets
+
+### LJSpeech (Clean Reference Audio)
+
+**What it is**: 13,100 short audio clips of a single speaker reading public domain books. High-quality, consistent recordings.
+
+**Size**: 2.6 GB
+
+**Acquisition**: Automated download from `data.keithito.com` — the only straightforward part of data sourcing.
+
+```python
+# This worked beautifully
+from speech_quality.data.download import DatasetDownloader
+downloader = DatasetDownloader()
+downloader.download_ljspeech()  # Downloads, extracts, validates
+```
+
+**Use case**: Clean audio to apply synthetic degradations (codec compression, noise, etc.)
+
+### NISQA Corpus (Ground Truth MOS)
+
+**What it is**: ~14,000 audio clips with human-rated MOS scores collected by TU Berlin researchers.
+
+**Size**: ~5 GB
+
+**Acquisition**: Here's where things got difficult.
+
+**The Documentation Gap Problem**: The NISQA corpus exists across multiple releases and formats. Finding the right files required:
+- Searching through GitHub issues to understand the file structure
+- Cross-referencing paper publications with data releases
+- Discovering that label files use inconsistent column names across subsets
+
+**The Format Problem**: Different NISQA subsets use different:
+- Sample rates (16kHz, 48kHz)
+- File naming conventions
+- CSV formats for the MOS labels
+
+I spent considerable time writing data loaders that could handle these inconsistencies:
+
+```python
+# Handling NISQA's varied formats
+class MOSLoader:
+    """Load MOS scores from various dataset formats."""
+
+    NISQA_SUBSETS = [
+        "NISQA_TRAIN_SIM",
+        "NISQA_TRAIN_LIVE",
+        "NISQA_VAL_SIM",
+        "NISQA_VAL_LIVE",
+    ]
+
+    def load_nisqa_mos(self, nisqa_dir: Path) -> pd.DataFrame:
+        """Load MOS scores from NISQA dataset subsets."""
+        all_scores = []
+
+        for subset in self.NISQA_SUBSETS:
+            subset_dir = nisqa_dir / subset
+            csv_files = list(subset_dir.glob("*.csv"))
+
+            for csv_file in csv_files:
+                df = pd.read_csv(csv_file)
+                # Column names vary: 'mos', 'MOS', 'mos_pred', etc.
+                mos_col = self._find_mos_column(df)
+                # ... normalization logic
+```
+
+### VoiceMOS Challenge 2022
+
+**What it is**: Dataset from a speech quality prediction challenge, with diverse synthesis and degradation types.
+
+**Size**: ~2 GB
+
+**Acquisition**: Requires Zenodo registration and manual download.
+
+**The Discovery Problem**: The VoiceMOS data is organized differently than expected:
+- Main track vs. out-of-distribution (OOD) track have different structures
+- Some files are missing from the published archives
+- The "ground truth" for the test set wasn't released with the initial download
+
+## Lessons Learned
+
+### 1. Audio ML Data is Hard to Find
+
+Unlike computer vision (ImageNet) or NLP (Common Crawl), there's no single go-to dataset for speech quality. Each research group creates their own, with their own conventions.
+
+### 2. Documentation Debt is Real
+
+Academic datasets often have minimal documentation. You're expected to read the paper, but papers don't specify file formats, column names, or edge cases.
+
+### 3. Storage Adds Up Fast
+
+| Dataset | Size | Notes |
+|---------|------|-------|
+| LJSpeech (raw) | 2.6 GB | Clean audio |
+| NISQA | ~5 GB | Multiple subsets |
+| VoiceMOS | ~2 GB | Two tracks |
+| Processed audio | ~3 GB | 16kHz standardized |
+| Degraded audio | ~10 GB | Multiple degradation combos |
+| **Total** | **~23 GB** | Plus database files |
+
+### 4. Idempotent Pipelines Save Sanity
+
+I designed the pipeline to be re-runnable without duplicating data:
+
+```python
+def upsert_audio_file(self, file_id: str, ...):
+    """Insert or update audio file record.
+
+    Uses ON CONFLICT to handle re-runs gracefully.
+    """
+    self.conn.execute("""
+        INSERT INTO audio_files (file_id, dataset, file_path, ...)
+        VALUES (?, ?, ?, ...)
+        ON CONFLICT (file_id) DO UPDATE SET
+            file_path = excluded.file_path,
+            ...
+    """, params)
+```
+
+This meant I could restart the pipeline after fixing bugs without corrupting the database.
+
+## What I Would Do Differently
+
+1. **Start with data exploration** before writing any ML code. Understanding the datasets' quirks upfront would have saved debugging time later.
+
+2. **Build validation into the download process**. Check file integrity, expected counts, and format compliance immediately.
+
+3. **Document assumptions explicitly**. When I made a decision about how to handle a data inconsistency, I should have logged it somewhere persistent.
+
+## Final Dataset Statistics
+
+After all the cleaning and processing:
+
+| Metric | Value |
+|--------|-------|
+| Total audio files | 76,992 |
+| Files with MOS labels | 11,492 |
+| Synthetic degradations | 52,400 |
+| Feature dimensions | 32 scalar features |
+
+---

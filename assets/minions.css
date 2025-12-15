@@ -1,0 +1,361 @@
+/* ========================================
+   Cassette Minion Characters
+   Animated characters from the Transformers universe
+   ======================================== */
+
+/* ----------------------------------------
+   Base Minion Styles
+   ---------------------------------------- */
+.minion {
+  position: fixed;
+  z-index: 9000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.minion.visible {
+  opacity: 1;
+}
+
+.minion.interactive {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Minion sizes */
+#ravage {
+  width: 80px;
+  height: auto;
+}
+
+#laserbeak {
+  width: 60px;
+  height: auto;
+}
+
+#ratbat {
+  width: 50px;
+  height: auto;
+}
+
+/* ----------------------------------------
+   State-based styling
+   ---------------------------------------- */
+.minion[data-state="hidden"] {
+  display: none;
+}
+
+.minion[data-state="entering"] {
+  animation: minion-enter 0.3s ease-out;
+}
+
+.minion[data-state="exiting"] {
+  animation: minion-exit 0.3s ease-in forwards;
+}
+
+@keyframes minion-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes minion-exit {
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+}
+
+/* ----------------------------------------
+   Ravage Animations
+   ---------------------------------------- */
+
+/* Prowl body bob */
+@keyframes prowl-body {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  25%, 75% {
+    transform: translateY(-3px);
+  }
+}
+
+/* Front leg movement */
+@keyframes prowl-leg-front {
+  0%, 100% {
+    transform: rotate(-20deg);
+  }
+  50% {
+    transform: rotate(20deg);
+  }
+}
+
+/* Back leg movement (opposite phase) */
+@keyframes prowl-leg-back {
+  0%, 100% {
+    transform: rotate(20deg);
+  }
+  50% {
+    transform: rotate(-20deg);
+  }
+}
+
+/* Tail sway */
+@keyframes tail-sway {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+
+/* Apply prowl animations */
+#ravage.prowling .body {
+  animation: prowl-body 0.4s ease-in-out infinite;
+}
+
+#ravage.prowling .leg-front-left,
+#ravage.prowling .leg-back-right {
+  transform-origin: top center;
+  animation: prowl-leg-front 0.4s ease-in-out infinite;
+}
+
+#ravage.prowling .leg-front-right,
+#ravage.prowling .leg-back-left {
+  transform-origin: top center;
+  animation: prowl-leg-back 0.4s ease-in-out infinite;
+}
+
+#ravage.prowling .tail {
+  transform-origin: left center;
+  animation: tail-sway 0.8s ease-in-out infinite;
+}
+
+/* Eye tracking - pupils controlled by JS */
+#ravage .pupil {
+  transition: transform 0.1s ease-out;
+}
+
+/* Idle stance */
+#ravage.idle .tail {
+  animation: tail-sway 2s ease-in-out infinite;
+}
+
+/* ----------------------------------------
+   Laserbeak Animations
+   ---------------------------------------- */
+
+/* Wing flap for flight */
+@keyframes wing-flap {
+  0%, 100% {
+    transform: rotate(0deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(-15deg) scaleY(0.9);
+  }
+}
+
+#laserbeak.flying .wing-left {
+  transform-origin: right center;
+  animation: wing-flap 0.2s ease-in-out infinite;
+}
+
+#laserbeak.flying .wing-right {
+  transform-origin: left center;
+  animation: wing-flap 0.2s ease-in-out infinite reverse;
+}
+
+/* Circling animation handled by JS - just add subtle hover */
+#laserbeak.circling {
+  filter: drop-shadow(0 0 5px var(--faction-glow));
+}
+
+/* Perched state */
+#laserbeak.perched .wing-left,
+#laserbeak.perched .wing-right {
+  animation: none;
+  transform: rotate(0deg);
+}
+
+/* ----------------------------------------
+   Ratbat Animations
+   ---------------------------------------- */
+
+/* Erratic wing beat */
+@keyframes erratic-wing {
+  0%, 20%, 40%, 60%, 80%, 100% {
+    transform: rotate(0deg);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: rotate(-25deg) scaleY(0.85);
+  }
+}
+
+#ratbat.flying .wing-left {
+  transform-origin: right center;
+  animation: erratic-wing 0.3s ease-in-out infinite;
+}
+
+#ratbat.flying .wing-right {
+  transform-origin: left center;
+  animation: erratic-wing 0.3s ease-in-out infinite;
+  animation-delay: 0.05s;
+}
+
+/* Hunt mode - more intense */
+#ratbat.hunting {
+  filter: drop-shadow(0 0 8px rgba(255, 0, 0, 0.6));
+}
+
+#ratbat.hunting .wing-left,
+#ratbat.hunting .wing-right {
+  animation-duration: 0.15s;
+}
+
+/* Caught flash effect */
+#ratbat.caught {
+  animation: caught-flash 0.2s ease-out;
+}
+
+@keyframes caught-flash {
+  0% {
+    filter: brightness(3);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* Victory escape */
+#ratbat.escaping {
+  animation: escape-spin 0.8s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@keyframes escape-spin {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(50vw, -100px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* ----------------------------------------
+   Peek Behavior
+   Minions peeking from screen edges
+   ---------------------------------------- */
+.minion.peeking {
+  animation: peek-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes peek-in {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.minion.peeking-out {
+  animation: peek-out 0.3s ease-in forwards;
+}
+
+@keyframes peek-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+}
+
+/* ----------------------------------------
+   Blaster Faction Variants
+   Different color scheme when faction changes
+   ---------------------------------------- */
+[data-faction="blaster"] #ravage .pupil,
+[data-faction="blaster"] #laserbeak .pupil,
+[data-faction="blaster"] #ratbat .pupil {
+  fill: url(#blaster-eye-glow);
+}
+
+/* Add blaster eye gradient via JS when faction changes */
+
+/* ----------------------------------------
+   Reduced Motion
+   ---------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .minion {
+    transition: none;
+  }
+
+  .minion[data-state="entering"],
+  .minion[data-state="exiting"],
+  .minion.peeking,
+  .minion.peeking-out {
+    animation: none;
+  }
+
+  #ravage.prowling .body,
+  #ravage.prowling .leg-front-left,
+  #ravage.prowling .leg-front-right,
+  #ravage.prowling .leg-back-left,
+  #ravage.prowling .leg-back-right,
+  #ravage.prowling .tail,
+  #ravage.idle .tail {
+    animation: none;
+  }
+
+  #laserbeak.flying .wing-left,
+  #laserbeak.flying .wing-right {
+    animation: none;
+  }
+
+  #ratbat.flying .wing-left,
+  #ratbat.flying .wing-right,
+  #ratbat.hunting .wing-left,
+  #ratbat.hunting .wing-right,
+  #ratbat.caught,
+  #ratbat.escaping {
+    animation: none;
+  }
+
+  /* Static display for reduced motion users */
+  .minion {
+    opacity: 0 !important;
+  }
+}
+
+/* ----------------------------------------
+   Animation Pausing
+   ---------------------------------------- */
+.animations-paused .minion,
+.animations-paused #ravage.prowling .body,
+.animations-paused #ravage.prowling .leg-front-left,
+.animations-paused #ravage.prowling .leg-front-right,
+.animations-paused #ravage.prowling .leg-back-left,
+.animations-paused #ravage.prowling .leg-back-right,
+.animations-paused #ravage.prowling .tail,
+.animations-paused #laserbeak.flying .wing-left,
+.animations-paused #laserbeak.flying .wing-right,
+.animations-paused #ratbat.flying .wing-left,
+.animations-paused #ratbat.flying .wing-right {
+  animation-play-state: paused;
+}

@@ -1,0 +1,899 @@
+/* ========================================
+   Cassette Deck Navigation System
+   Interactive UI where sections are tapes loaded into a deck
+   ======================================== */
+
+/* ----------------------------------------
+   Navigation Container
+   ---------------------------------------- */
+.tape-navigation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  width: 100%;
+  max-width: var(--content-width);
+}
+
+/* ----------------------------------------
+   Tape Rack
+   Container for cassette buttons
+   ---------------------------------------- */
+.tape-rack {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  padding: 20px;
+  perspective: 1000px;
+}
+
+/* ----------------------------------------
+   Individual Cassette
+   ---------------------------------------- */
+.cassette {
+  background: none;
+  border: none;
+  padding: 0;
+  perspective: 800px;
+  transform-style: preserve-3d;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+.cassette-body {
+  position: relative;
+  width: var(--cassette-width);
+  height: var(--cassette-height);
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--cassette-color) 80%, white) 0%,
+    color-mix(in srgb, var(--cassette-color) 90%, white) 5%,
+    var(--cassette-color) 20%,
+    var(--cassette-color) 80%,
+    color-mix(in srgb, var(--cassette-color) 80%, black) 95%,
+    color-mix(in srgb, var(--cassette-color) 60%, black) 100%
+  );
+  border-radius: 5px;
+  transform: rotateX(15deg);
+  transform-style: preserve-3d;
+  transition:
+    transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.3s ease;
+  box-shadow:
+    /* Top edge highlight */
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    /* Bottom edge */
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+    /* Side bevels */
+    inset 1px 0 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(0, 0, 0, 0.2),
+    /* 3D depth - bottom face */
+    0 var(--cassette-depth) 0 -2px color-mix(in srgb, var(--cassette-color) 50%, black),
+    0 calc(var(--cassette-depth) + 2px) 0 -2px color-mix(in srgb, var(--cassette-color) 40%, black),
+    /* Drop shadow */
+    0 calc(var(--cassette-depth) + 6px) 15px rgba(0, 0, 0, 0.5);
+}
+
+/* Hover state - lift cassette */
+.cassette:hover .cassette-body {
+  transform: rotateX(5deg) translateY(-12px) scale(1.08);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4),
+    inset 1px 0 0 rgba(255, 255, 255, 0.15),
+    inset -1px 0 0 rgba(0, 0, 0, 0.2),
+    0 var(--cassette-depth) 0 -2px color-mix(in srgb, var(--cassette-color) 50%, black),
+    0 calc(var(--cassette-depth) + 2px) 0 -2px color-mix(in srgb, var(--cassette-color) 40%, black),
+    0 calc(var(--cassette-depth) + 12px) 25px rgba(0, 0, 0, 0.6),
+    /* Faction glow on hover */
+    0 0 25px var(--faction-glow);
+}
+
+/* Focus state for keyboard navigation */
+.cassette:focus-visible .cassette-body {
+  outline: 2px solid var(--faction-primary);
+  outline-offset: 4px;
+}
+
+/* Loading state - prevent interaction */
+.cassette.loading {
+  pointer-events: none;
+}
+
+.cassette.loading .cassette-body {
+  animation: cassette-pulse 0.5s ease-in-out infinite;
+}
+
+@keyframes cassette-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* Loaded state - cassette is in deck */
+.cassette.loaded .cassette-body {
+  transform: translateZ(-50px) scale(0.9);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ----------------------------------------
+   Cassette Label Area
+   ---------------------------------------- */
+.label-area {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  right: 8px;
+  height: 24px;
+  background: var(--label-color);
+  border-radius: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.label-text {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #333;
+  text-transform: uppercase;
+}
+
+/* ----------------------------------------
+   Tape Window with Reels
+   ---------------------------------------- */
+.tape-window {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 30px;
+  background: linear-gradient(
+    180deg,
+    #050505 0%,
+    #0a0a0a 30%,
+    #080808 100%
+  );
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.9),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.reel {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  /* Multi-ring hub detail */
+  background:
+    radial-gradient(circle at center,
+      #555 0%,
+      #555 15%,
+      #333 16%,
+      #333 22%,
+      #444 23%,
+      #444 28%,
+      #222 29%,
+      #222 40%,
+      #333 41%,
+      #333 48%,
+      #2a2a2a 49%,
+      #2a2a2a 100%
+    );
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(255, 255, 255, 0.1);
+  animation: reel-spin 4s linear infinite;
+  /* Add spokes hint */
+  background-image:
+    radial-gradient(circle at center,
+      #555 0%,
+      #555 15%,
+      #333 16%,
+      #333 22%,
+      #444 23%,
+      #444 28%,
+      #222 29%,
+      #222 40%,
+      #333 41%,
+      #333 48%,
+      #2a2a2a 49%,
+      #2a2a2a 100%
+    ),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(60, 60, 60, 0.3) 0deg 30deg,
+      transparent 30deg 60deg
+    );
+}
+
+.reel-left {
+  animation-direction: normal;
+}
+
+.reel-right {
+  animation-direction: reverse;
+}
+
+@keyframes reel-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Speed up reels when playing */
+.cassette.playing .reel {
+  animation-duration: 0.5s;
+}
+
+/* ----------------------------------------
+   Decorative Screws
+   ---------------------------------------- */
+.screw {
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  background: radial-gradient(
+    circle at 35% 35%,
+    #777 0%,
+    #555 40%,
+    #333 100%
+  );
+  border-radius: 50%;
+  box-shadow:
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5),
+    0 1px 1px rgba(0, 0, 0, 0.3);
+}
+
+/* Slot groove */
+.screw::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    #222 20%,
+    #111 50%,
+    #222 80%,
+    transparent 100%
+  );
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.1);
+}
+
+.screw-tl { top: 4px; left: 4px; }
+.screw-tr { top: 4px; right: 4px; }
+.screw-bl { bottom: 4px; left: 4px; }
+.screw-br { bottom: 4px; right: 4px; }
+
+/* ----------------------------------------
+   Tape Deck - Boombox Frame
+   ---------------------------------------- */
+.tape-deck {
+  perspective: 1000px;
+  /* Boombox outer frame */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  background: linear-gradient(
+    180deg,
+    #4a4a4a 0%,
+    #3a3a3a 10%,
+    #2a2a2a 90%,
+    #1a1a1a 100%
+  );
+  /* Wide enough to contain speakers */
+  padding: 25px 125px;
+  border-radius: 12px;
+  border: 2px solid #1a1a1a;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.4),
+    0 10px 0 #0a0a0a,
+    0 15px 30px rgba(0, 0, 0, 0.7);
+  position: relative;
+}
+
+/* Boombox handle */
+.tape-deck::before {
+  content: "";
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  height: 10px;
+  background: linear-gradient(
+    180deg,
+    #555 0%,
+    #444 40%,
+    #333 100%
+  );
+  border-radius: 5px 5px 0 0;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 -2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Left speaker grille */
+.tape-deck .deck-housing::before {
+  content: "";
+  position: absolute;
+  left: -110px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 95px;
+  height: 180px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 2px solid #111;
+  box-shadow:
+    inset 0 4px 12px rgba(0, 0, 0, 0.9),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.03),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Speaker grille - larger horizontal slats */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      #080808 0px,
+      #080808 5px,
+      #2a2a2a 5px,
+      #2a2a2a 12px
+    );
+}
+
+/* Right speaker grille */
+.tape-deck .deck-housing::after {
+  content: "";
+  position: absolute;
+  right: -110px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 95px;
+  height: 180px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 2px solid #111;
+  box-shadow:
+    inset 0 4px 12px rgba(0, 0, 0, 0.9),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.03),
+    0 1px 0 rgba(255, 255, 255, 0.08);
+  /* Speaker grille - larger horizontal slats */
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      #080808 0px,
+      #080808 5px,
+      #2a2a2a 5px,
+      #2a2a2a 12px
+    );
+}
+
+.deck-housing {
+  width: var(--deck-width);
+  /* Silver/metallic cassette bay */
+  background: linear-gradient(
+    180deg,
+    #8a8a8a 0%,
+    #777 8%,
+    #6a6a6a 50%,
+    #5a5a5a 92%,
+    #4a4a4a 100%
+  );
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid #333;
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -2px 4px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.5);
+  position: relative;
+  z-index: 1;
+}
+
+/* ----------------------------------------
+   Deck Slot
+   ---------------------------------------- */
+.deck-slot {
+  position: relative;
+  height: 90px;
+  /* Smoked transparent window - lighter to show depth */
+  background: linear-gradient(
+    180deg,
+    #1a1a1a 0%,
+    #252525 20%,
+    #2a2a2a 50%,
+    #252525 80%,
+    #1a1a1a 100%
+  );
+  border-radius: 6px;
+  overflow: hidden;
+  /* Glass-like frame */
+  border: 2px solid #111;
+  box-shadow:
+    inset 0 3px 8px rgba(0, 0, 0, 0.6),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.05),
+    /* Subtle reflection on glass */
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.slot-opening {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 130px;
+  height: 12px;
+  background: linear-gradient(
+    180deg,
+    #0a0a0a 0%,
+    #151515 50%,
+    #1a1a1a 100%
+  );
+  border-radius: 0 0 6px 6px;
+  /* Cassette insertion slot */
+  box-shadow:
+    inset 0 3px 6px rgba(0, 0, 0, 0.7),
+    inset 2px 0 4px rgba(0, 0, 0, 0.4),
+    inset -2px 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Inner lip highlight */
+.slot-opening::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 4px;
+  right: 4px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.deck-mechanism {
+  position: absolute;
+  inset: 6px;
+  border-radius: 5px;
+  /* Cassette shell - match .cassette-body styling */
+  background: var(--cassette-color);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    inset -1px 0 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Tape window - positioned at bottom like cassettes above */
+.deck-mechanism::before {
+  content: "";
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90px;
+  height: 38px;
+  background: linear-gradient(180deg, #050505 0%, #0a0a0a 30%, #080808 100%);
+  border-radius: 4px;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+/* Label area - uses .capstan element so JS can update text */
+.capstan {
+  position: absolute;
+  top: 6px;
+  left: 10px;
+  right: 10px;
+  height: 22px;
+  width: auto;
+  background: var(--label-color);
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--ff-mono);
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  color: #333;
+  text-transform: uppercase;
+}
+
+/* Left reel - match .reel styling from cassettes */
+.pinch-roller {
+  position: absolute;
+  bottom: 16px;
+  left: calc(50% - 38px);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background:
+    radial-gradient(circle at center,
+      #555 0%,
+      #555 15%,
+      #333 16%,
+      #333 22%,
+      #444 23%,
+      #444 28%,
+      #222 29%,
+      #222 40%,
+      #333 41%,
+      #333 48%,
+      #2a2a2a 49%,
+      #2a2a2a 100%
+    ),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(60, 60, 60, 0.3) 0deg 30deg,
+      transparent 30deg 60deg
+    );
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(255, 255, 255, 0.1);
+  animation: reel-spin 4s linear infinite;
+  z-index: 2;
+}
+
+/* Right reel - match .reel styling */
+.play-head {
+  position: absolute;
+  bottom: 16px;
+  right: calc(50% - 38px);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center,
+      #555 0%,
+      #555 15%,
+      #333 16%,
+      #333 22%,
+      #444 23%,
+      #444 28%,
+      #222 29%,
+      #222 40%,
+      #333 41%,
+      #333 48%,
+      #2a2a2a 49%,
+      #2a2a2a 100%
+    ),
+    repeating-conic-gradient(
+      from 0deg,
+      rgba(60, 60, 60, 0.3) 0deg 30deg,
+      transparent 30deg 60deg
+    );
+  box-shadow:
+    inset 0 0 4px rgba(0, 0, 0, 0.6),
+    0 0 2px rgba(255, 255, 255, 0.1);
+  animation: reel-spin 4s linear infinite reverse;
+  z-index: 2;
+}
+
+/* Engaged state when tape is loaded */
+.deck-slot.engaged .deck-mechanism {
+  animation: mechanism-pulse 0.5s ease;
+}
+
+@keyframes mechanism-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* ----------------------------------------
+   Deck Controls
+   ---------------------------------------- */
+.deck-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.deck-btn {
+  width: 55px;
+  height: 38px;
+  background: linear-gradient(
+    180deg,
+    #606060 0%,
+    #505050 10%,
+    #454545 50%,
+    #3a3a3a 90%,
+    #303030 100%
+  );
+  border: none;
+  border-radius: 5px;
+  position: relative;
+  /* Tactile button depth */
+  box-shadow:
+    /* Top highlight */
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 2px 0 rgba(255, 255, 255, 0.1),
+    /* Side bevels */
+    inset 1px 0 0 rgba(255, 255, 255, 0.1),
+    inset -1px 0 0 rgba(0, 0, 0, 0.2),
+    /* Bottom shadow (button height) */
+    0 4px 0 #222,
+    0 5px 0 #1a1a1a,
+    /* Drop shadow */
+    0 7px 10px rgba(0, 0, 0, 0.4);
+  transition:
+    transform 0.08s ease,
+    box-shadow 0.08s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deck-btn:hover {
+  background: linear-gradient(
+    180deg,
+    #6a6a6a 0%,
+    #5a5a5a 10%,
+    #4f4f4f 50%,
+    #444 90%,
+    #3a3a3a 100%
+  );
+}
+
+.deck-btn:active {
+  transform: translateY(3px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 1px 0 0 rgba(255, 255, 255, 0.08),
+    inset -1px 0 0 rgba(0, 0, 0, 0.15),
+    0 1px 0 #222,
+    0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.deck-btn:focus-visible {
+  outline: 2px solid var(--faction-primary);
+  outline-offset: 2px;
+}
+
+.btn-icon {
+  font-size: 20px;
+  color: #ddd;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ----------------------------------------
+   Deck Display
+   ---------------------------------------- */
+.deck-display {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+/* Counter */
+.counter {
+  display: flex;
+  background: var(--counter-bg);
+  padding: 6px 10px;
+  border-radius: 4px;
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.9),
+    inset 0 0 2px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+  gap: 2px;
+}
+
+.digit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 26px;
+  background: linear-gradient(
+    180deg,
+    #080000 0%,
+    #0a0000 50%,
+    #050000 100%
+  );
+  color: var(--counter-segment-on);
+  font-family: var(--ff-mono);
+  font-size: 18px;
+  font-weight: bold;
+  border-radius: 2px;
+  /* LED glow effect */
+  text-shadow:
+    0 0 6px var(--counter-segment-on),
+    0 0 12px var(--counter-glow-strong),
+    0 0 20px rgba(255, 50, 50, 0.4);
+  box-shadow:
+    inset 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.digit.flipping {
+  animation: digit-flip 0.15s ease-out;
+}
+
+@keyframes digit-flip {
+  0% {
+    transform: scaleY(0.1);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scaleY(1.1);
+  }
+  100% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* VU Meters */
+.vu-meters {
+  display: flex;
+  gap: 10px;
+}
+
+.vu-meter {
+  width: 70px;
+  height: 10px;
+  background: #080808;
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.8),
+    0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* Segmented appearance */
+.vu-meter::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 4px,
+    rgba(0, 0, 0, 0.7) 4px,
+    rgba(0, 0, 0, 0.7) 5px
+  );
+  z-index: 2;
+  pointer-events: none;
+}
+
+.vu-meter::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: var(--level, 0%);
+  background: linear-gradient(
+    90deg,
+    #00cc00 0%,
+    #00ff00 30%,
+    #66ff00 50%,
+    #ccff00 65%,
+    #ffff00 75%,
+    #ffcc00 85%,
+    #ff6600 92%,
+    #ff0000 100%
+  );
+  box-shadow:
+    0 0 4px var(--vu-green),
+    0 0 8px rgba(0, 255, 0, 0.3);
+  transition: width 0.08s ease-out;
+}
+
+/* ----------------------------------------
+   Content Reveal Animation
+   Synchronized with counter
+   ---------------------------------------- */
+.tape-content {
+  /* Clip-path reveal effect */
+  clip-path: inset(0 calc(100% - var(--reveal-progress, 100%)) 0 0);
+}
+
+/* Alternative gradient mask version (commented out)
+.tape-content {
+  mask-image: linear-gradient(
+    to right,
+    black var(--reveal-progress, 100%),
+    transparent var(--reveal-progress, 100%)
+  );
+}
+*/
+
+/* ----------------------------------------
+   Responsive Adjustments
+   ---------------------------------------- */
+@media (max-width: 800px) {
+  .tape-rack {
+    gap: 15px;
+    padding: 15px;
+  }
+
+  .cassette-body {
+    width: calc(var(--cassette-width) * 0.85);
+    height: calc(var(--cassette-height) * 0.85);
+  }
+
+  .tape-deck {
+    padding: 20px 90px;
+  }
+
+  .tape-deck .deck-housing::before,
+  .tape-deck .deck-housing::after {
+    width: 70px;
+    height: 140px;
+    left: -80px;
+  }
+
+  .tape-deck .deck-housing::after {
+    left: auto;
+    right: -80px;
+  }
+
+  .deck-housing {
+    width: calc(var(--deck-width) * 0.85);
+    padding: 15px;
+  }
+
+  .vu-meter {
+    width: 45px;
+  }
+}
+
+@media (max-width: 550px) {
+  .tape-deck {
+    padding: 15px 20px;
+  }
+
+  /* Hide speakers on very small screens */
+  .tape-deck .deck-housing::before,
+  .tape-deck .deck-housing::after {
+    display: none;
+  }
+
+  .tape-deck::before {
+    width: 80px;
+  }
+}
+
+/* ----------------------------------------
+   Reduced Motion
+   ---------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .reel {
+    animation: none;
+  }
+
+  .cassette-body {
+    transition: none;
+  }
+
+  .tape-content {
+    clip-path: none;
+  }
+
+  .digit.flipping {
+    animation: none;
+  }
+
+  .cassette.loading .cassette-body {
+    animation: none;
+  }
+}
